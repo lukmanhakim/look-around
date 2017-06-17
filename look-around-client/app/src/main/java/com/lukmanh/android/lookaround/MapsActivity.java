@@ -1,15 +1,8 @@
 package com.lukmanh.android.lookaround;
 
-import android.content.Context;
 import android.content.Intent;
-import android.content.pm.PackageManager;
-import android.location.Criteria;
-import android.location.Location;
-import android.location.LocationListener;
-import android.location.LocationManager;
 import android.net.Uri;
 import android.os.AsyncTask;
-import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.FragmentActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -22,8 +15,8 @@ import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
-import com.lukmanh.android.lookaround.adapter.EventInfoAdapter;
 import com.lukmanh.android.lookaround.domain.Event;
+import com.lukmanh.android.lookaround.service.GPSTracker;
 import com.lukmanh.android.lookaround.service.HttpService;
 
 import org.springframework.http.HttpStatus;
@@ -37,6 +30,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
     private GoogleMap mMap;
     private HttpService service = new HttpService();
+    private GPSTracker gpsTracker;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -61,33 +55,15 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     @Override
     public void onMapReady(GoogleMap googleMap) {
         mMap = googleMap;
-        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(getCurrentPosition(), 14.0f));
-        new GetListEventExecutor().execute();
-    }
-
-    private LatLng getCurrentPosition() {
-
-        LocationManager locationManager = (LocationManager)
-                getSystemService(Context.LOCATION_SERVICE);
-        Criteria criteria = new Criteria();
-        criteria.setAccuracy(Criteria.ACCURACY_FINE);
-        criteria.setPowerRequirement(Criteria.POWER_LOW);
-        if (ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            // TODO: Consider calling
-            //    ActivityCompat#requestPermissions
-            // here to request the missing permissions, and then overriding
-            //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
-            //                                          int[] grantResults)
-            // to handle the case where the user grants the permission. See the documentation
-            // for ActivityCompat#requestPermissions for more details.
-            Toast.makeText(getApplicationContext(), "Can't get your current location", Toast.LENGTH_SHORT).show();
-            return new LatLng(-6.175054, 106.827148);
+        gpsTracker = new GPSTracker(this);
+        LatLng pos;
+        if(gpsTracker.getIsGPSTrackingEnabled()){
+            pos = new LatLng(gpsTracker.getLatitude(), gpsTracker.getLongitude());
+        } else {
+            pos = new LatLng(-6.175054, 106.827148);
         }
-        Location location = locationManager.getLastKnownLocation(locationManager.getBestProvider(criteria, true));
-        if(location != null)
-            return new LatLng(location.getLatitude(), location.getLongitude());
-        else
-            return new LatLng(-6.175054, 106.827148);
+        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(pos, 17.0f));
+        new GetListEventExecutor().execute();
     }
 
     private class GetListEventExecutor extends AsyncTask<Void, Void, ResponseEntity>{
