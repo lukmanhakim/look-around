@@ -11,5 +11,5 @@ INSERT INTO profile (fullname, id_user) VALUES
 ("User 1", 2);
 
 INSERT INTO event (title, description, lat, lng, reference_url, id_user) VALUES
-("Kebakaran", "Telah terjadi kebarakan bla bla bla", "-6.249019232564748", "106.90832376480103", "http://localhost/phpmyadmin", 1), 
-("Banjir", "Telah terjadi banjir bla bla bla", "-6.249328520010227", "106.90892457962036", "http://localhost/phpmyadmin", 1); 
+("Kebakaran", "Telah terjadi kebarakan bla bla bla", "-6.249019232564748", "106.90832376480103", "http://blog.lukmanh.com", 1), 
+("Banjir", "Telah terjadi banjir bla bla bla", "-6.249328520010227", "106.90892457962036", "http://blog.lukmanh.com", 1); 
