@@ -4,16 +4,19 @@
 
 	$query = "SELECT * FROM event";
 	$result = mysqli_query($connection, $query);
-
-	while($row = mysqli_fetch_assoc($result)){
-		$data[] = array(
-				"id" => $row['id'],
-				"title" => $row['title'],
-				"description" => $row['description'],
-				"lat" => $row['lat'],
-				"lng" => $row['lng'],
-				"reference" => $row['reference_url']
-			);
+	$num_rows = mysqli_num_rows($result);
+	$data = null;
+	if($num_rows > 0){
+		while($row = mysqli_fetch_assoc($result)){
+			$data[] = array(
+					"id" => $row['id'],
+					"title" => $row['title'],
+					"description" => $row['description'],
+					"lat" => $row['lat'],
+					"lng" => $row['lng'],
+					"reference" => $row['reference_url']
+				);
+		}
 	}
 ?>
 
@@ -78,39 +81,41 @@
 	    			center: {lat: -25.363882, lng: 131.044922 }
 	  			});
 				
-				for(var i = 0; i < events.length; i++){
+				if(events){
+					for(var i = 0; i < events.length; i++){
+			            var eventPosition = {
+			            	lat : parseFloat(events[i].lat),
+			            	lng : parseFloat(events[i].lng)
+			            }
 
-		            var eventPosition = {
-		            	lat : parseFloat(events[i].lat),
-		            	lng : parseFloat(events[i].lng)
-		            }
+	        			var eventMarker = new google.maps.Marker({
+	          				position: eventPosition,
+	          				map: map,
+	    					animation: google.maps.Animation.DROP,
+	          				title: events[i].title,
+	          				icon: 'https://developers.google.com/maps/documentation/javascript/examples/full/images/beachflag.png'
+	        			});
 
-        			var eventMarker = new google.maps.Marker({
-          				position: eventPosition,
-          				map: map,
-    					animation: google.maps.Animation.DROP,
-          				title: events[i].title,
-          				icon: 'https://developers.google.com/maps/documentation/javascript/examples/full/images/beachflag.png'
-        			});
+	 					infowindow = new google.maps.InfoWindow();
 
- 					infowindow = new google.maps.InfoWindow();
+						eventMarker.content = '<div id="content">'+
+				            '<div id="siteNotice">'+
+				            '</div>'+
+				            '<h1 id="firstHeading" class="firstHeading">'+ events[i].title +'</h1>'+
+				            '<div id="bodyContent">'+
+				            '<p>' + events[i].description + '</p>'+
+				            '<p>Reference : <a href="' + events[i].reference + '" target="blank">' +
+				            events[i].reference +
+				            '</div>'+
+				            '</div>';
 
-					eventMarker.content = '<div id="content">'+
-			            '<div id="siteNotice">'+
-			            '</div>'+
-			            '<h1 id="firstHeading" class="firstHeading">'+ events[i].title +'</h1>'+
-			            '<div id="bodyContent">'+
-			            '<p>' + events[i].description + '</p>'+
-			            '<p>Reference : <a href="' + events[i].reference + '" target="blank">' +
-			            events[i].reference +
-			            '</div>'+
-			            '</div>';
-
-        			eventMarker.addListener('click', function() {
-        				infowindow.setContent(this.content);
-						infowindow.open(map, this);
-        			});
+	        			eventMarker.addListener('click', function() {
+	        				infowindow.setContent(this.content);
+							infowindow.open(map, this);
+	        			});
+					}	
 				}
+				
 
 				// Try HTML5 geolocation.
 				if (navigator.geolocation) {
