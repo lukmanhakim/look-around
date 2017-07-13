@@ -13,7 +13,7 @@ import org.springframework.web.client.RestTemplate;
 
 public class HttpService {
 
-    private String HOST = "http://172.16.114.104/look-around";
+    private String HOST = "http://localhost/look-around-server";
     private String BASE_URI =  HOST + "/api/";
     private RestTemplate restTemplate = new RestTemplate();
 
